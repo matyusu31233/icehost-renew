@@ -12,11 +12,11 @@ IceHost.pl 免费服 —— GitHub Actions 续期 + 保活
 环境变量:
   必需  ICEHOST_EMAIL / ICEHOST_PW
   可选  TG_BOT_TOKEN / TG_CHAT_ID
-  可选  ICEHOST_UUID (默认 7aaf1e7c)
+  可选  ICEHOST_UUID (默认 bfd0265b)
 """
 import os, sys, json, time, subprocess, urllib.request, urllib.parse, datetime, tempfile, shutil, re
 
-UUID = os.environ.get("ICEHOST_UUID", "7aaf1e7c").strip()
+UUID = os.environ.get("ICEHOST_UUID", "bfd0265b").strip()
 FULL = os.environ.get("ICEHOST_FULL_UUID", "").strip()
 BASE = "https://dash.icehost.pl"
 EMAIL = os.environ.get("ICEHOST_EMAIL", "").strip()
