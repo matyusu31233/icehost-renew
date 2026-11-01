@@ -15,6 +15,7 @@ IceHost.pl 免费服 —— GitHub Actions 续期 + 保活
   可选  ICEHOST_UUID (默认 bfd0265b)
 """
 import os, sys, json, time, subprocess, urllib.request, urllib.parse, datetime, tempfile, shutil, re
+from zoneinfo import ZoneInfo
 
 UUID = os.environ.get("ICEHOST_UUID", "bfd0265b").strip()
 FULL = os.environ.get("ICEHOST_FULL_UUID", "").strip()
@@ -260,7 +261,7 @@ def run(p, port):
     # 2) 打开服务器页，读续期前有效期
     nav(f"{BASE}/server/{UUID}", 7000)
     t = body()
-    m = re.search(r"DATA WAŻNOŚCI:\s*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]{8})", t)
+    m = re.search(r"(?:DATA WAŻNOŚCI|EXPIRATION DATE):\s*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]{8})", t)
     v0 = m.group(1) if m else ""
     # 取完整 uuid（面板 API 给的是完整 uuid；页面文字里只有短 id）
     full = FULL
@@ -313,7 +314,7 @@ def run(p, port):
         page.reload(wait_until="domcontentloaded", timeout=60000); page.wait_for_timeout(5000)
     except Exception: pass
     t2 = body()
-    m3 = re.search(r"DATA WAŻNOŚCI:\s*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]{8})", t2)
+    m3 = re.search(r"(?:DATA WAŻNOŚCI|EXPIRATION DATE):\s*([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]{8})", t2)
     v1 = m3.group(1) if m3 else ""
 
     # 5) 保活：读服务器真实状态。⚠️ 面板是波兰语，爬页面找 "RUNNING" 找不到 → 走 Pterodactyl 式 API 直问
@@ -372,7 +373,7 @@ def run(p, port):
 
     def remain(v):
         try:
-            d = datetime.datetime.strptime(v, "%Y-%m-%d %H:%M:%S").replace(tzinfo=TZ_CN)
+            d = datetime.datetime.strptime(v, "%Y-%m-%d %H:%M:%S").replace(tzinfo=ZoneInfo("Europe/Warsaw"))
             mn = int((d - now).total_seconds() // 60)
             return f"{mn // 60}小时{mn % 60}分" if mn >= 0 else f"已过期{-mn // 60}小时{-mn % 60}分"
         except Exception:
